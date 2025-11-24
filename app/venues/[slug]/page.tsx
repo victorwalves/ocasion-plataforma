@@ -13,14 +13,15 @@ interface VenuePageProps {
     params: { slug: string };
 }
 
-export default async function VenuePage({ params }: VenuePageProps) {
+export default async function VenuePage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
     const supabase = await createClient();
 
     // Fetch Venue
     const { data: venue } = await supabase
         .from('venues')
         .select('*')
-        .eq('slug', params.slug)
+        .eq('slug', slug)
         .single();
 
     if (!venue) return notFound();
@@ -37,12 +38,25 @@ export default async function VenuePage({ params }: VenuePageProps) {
         .select('*')
         .or(`venue_id.eq.${venue.id},venue_id.is.null`);
 
+    // Parse amenities if it's a string (legacy/error case) or ensure it's an array
+    let amenitiesList = venue.amenities;
+    if (typeof amenitiesList === 'string') {
+        try {
+            amenitiesList = JSON.parse(amenitiesList);
+        } catch (e) {
+            amenitiesList = [];
+        }
+    }
+    if (!Array.isArray(amenitiesList)) {
+        amenitiesList = [];
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             {/* Hero Image */}
             <div className="relative h-[50vh] w-full">
                 <Image
-                    src={venue.images[0] || '/placeholder-venue.jpg'}
+                    src={venue.images?.[0] || '/placeholder-venue.jpg'}
                     alt={venue.title}
                     fill
                     className="object-cover"
@@ -78,7 +92,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
                         <section>
                             <h2 className="text-2xl font-bold mb-6">Comodidades</h2>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                {venue.amenities.map((amenity: string) => (
+                                {amenitiesList.map((amenity: string) => (
                                     <div key={amenity} className="flex items-center gap-2 text-gray-600">
                                         <div className="h-8 w-8 rounded-full bg-purple-50 flex items-center justify-center text-[#9c27c1]">
                                             <Check className="h-4 w-4" />
