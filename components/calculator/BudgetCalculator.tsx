@@ -164,29 +164,67 @@ export function BudgetCalculator({ venue, pricingRules, packages }: BudgetCalcul
 
                 {/* Packages */}
                 <div className="space-y-4">
-                    <h4 className="font-medium text-sm text-gray-500">Serviços Adicionais</h4>
-                    {packages.map((pkg) => (
-                        <div key={pkg.id} className="flex items-start space-x-3">
-                            <Checkbox
-                                id={pkg.id}
-                                checked={selectedPackages.some(p => p.id === pkg.id)}
-                                onCheckedChange={() => togglePackage(pkg)}
-                            />
-                            <div className="grid gap-1.5 leading-none">
-                                <label
-                                    htmlFor={pkg.id}
-                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                >
-                                    {pkg.name}
-                                </label>
-                                <p className="text-xs text-muted-foreground">
-                                    {pkg.price_type === 'per_person'
-                                        ? `${formatCurrency(pkg.price)} / pessoa`
-                                        : formatCurrency(pkg.price)}
-                                </p>
-                            </div>
-                        </div>
-                    ))}
+                    {/* Venue Packages */}
+                    {packages.filter(p => p.venue_id).length > 0 && (
+                        <>
+                            <h4 className="font-medium text-sm text-gray-500">Serviços do Espaço</h4>
+                            {packages.filter(p => p.venue_id).map((pkg) => (
+                                <div key={pkg.id} className="flex items-start space-x-3">
+                                    <Checkbox
+                                        id={pkg.id}
+                                        checked={selectedPackages.some(p => p.id === pkg.id)}
+                                        onCheckedChange={() => togglePackage(pkg)}
+                                    />
+                                    <div className="grid gap-1.5 leading-none">
+                                        <label
+                                            htmlFor={pkg.id}
+                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        >
+                                            {pkg.name}
+                                        </label>
+                                        <p className="text-xs text-muted-foreground">
+                                            {pkg.price_type === 'per_person'
+                                                ? `${formatCurrency(pkg.price)} / pessoa`
+                                                : formatCurrency(pkg.price)}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </>
+                    )}
+
+                    {/* Global Packages */}
+                    {packages.filter(p => !p.venue_id).length > 0 && (
+                        <>
+                            {packages.filter(p => p.venue_id).length > 0 && <Separator className="my-4" />}
+                            <h4 className="font-medium text-sm text-[#9c27c1] flex items-center gap-2">
+                                <span className="bg-purple-100 p-1 rounded">✨</span> Pacotes Ocasion
+                            </h4>
+                            {packages.filter(p => !p.venue_id).map((pkg) => (
+                                <div key={pkg.id} className="flex items-start space-x-3">
+                                    <Checkbox
+                                        id={pkg.id}
+                                        checked={selectedPackages.some(p => p.id === pkg.id)}
+                                        onCheckedChange={() => togglePackage(pkg)}
+                                    />
+                                    <div className="grid gap-1.5 leading-none">
+                                        <label
+                                            htmlFor={pkg.id}
+                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        >
+                                            {pkg.name}
+                                        </label>
+                                        <p className="text-xs text-muted-foreground">
+                                            {pkg.description && <span className="block mb-1 italic">{pkg.description}</span>}
+                                            {pkg.price_type === 'per_person'
+                                                ? `${formatCurrency(pkg.price)} / pessoa`
+                                                : formatCurrency(pkg.price)}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </>
+                    )}
                 </div>
 
                 <Separator />
