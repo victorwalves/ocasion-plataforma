@@ -58,8 +58,8 @@ export function VenueForm() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema) as Resolver<z.infer<typeof formSchema>>,
+    const form = useForm({
+        resolver: zodResolver(formSchema),
         defaultValues: {
             title: "",
             description: "",
